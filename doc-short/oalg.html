@@ -1,0 +1,249 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: package oalg</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>oalg</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/djung/lib/oalg/__init__.py">/home/djung/lib/oalg/__init__.py</a></font></td></tr></table>
+    <p><tt>Collection&nbsp;of&nbsp;on-line&nbsp;algorithms.&nbsp;Most&nbsp;of&nbsp;them&nbsp;are&nbsp;on-line&nbsp;versions&nbsp;of&nbsp;their<br>
+offline&nbsp;counterparts&nbsp;in&nbsp;numpy,&nbsp;but&nbsp;because&nbsp;of&nbsp;their&nbsp;on-line&nbsp;nature,&nbsp;they&nbsp;are<br>
+formulated&nbsp;as&nbsp;classes&nbsp;instead&nbsp;of&nbsp;functions.<br>
+&nbsp;<br>
+For&nbsp;further&nbsp;information&nbsp;about&nbsp;on-line&nbsp;algorithms,&nbsp;please&nbsp;check&nbsp;Wikipedia:<br>
+<a href="http://en.wikipedia.org/wiki/On-line_algorithm">http://en.wikipedia.org/wiki/On-line_algorithm</a><br>
+&nbsp;<br>
+The&nbsp;usage&nbsp;is&nbsp;always&nbsp;as&nbsp;follows:<br>
+1.&nbsp;In&nbsp;front&nbsp;of&nbsp;an&nbsp;(probably&nbsp;infinite)&nbsp;loop,&nbsp;instantiate&nbsp;the&nbsp;class.<br>
+2.&nbsp;Then,&nbsp;within&nbsp;each&nbsp;iteration,&nbsp;add&nbsp;some&nbsp;data&nbsp;to&nbsp;the&nbsp;class&nbsp;using&nbsp;the&nbsp;"add"<br>
+&nbsp;&nbsp;&nbsp;method.<br>
+3.&nbsp;The&nbsp;result&nbsp;of&nbsp;the&nbsp;calculation&nbsp;can&nbsp;be&nbsp;obtained&nbsp;at&nbsp;any&nbsp;point&nbsp;(after&nbsp;the&nbsp;loop<br>
+&nbsp;&nbsp;&nbsp;has&nbsp;been&nbsp;exited,&nbsp;but&nbsp;also&nbsp;within&nbsp;the&nbsp;loop)&nbsp;by&nbsp;calling&nbsp;the&nbsp;instance.<br>
+&nbsp;<br>
+Most&nbsp;classes&nbsp;accept&nbsp;scalar&nbsp;values&nbsp;as&nbsp;well&nbsp;as&nbsp;n-dimensional&nbsp;arrays,&nbsp;as&nbsp;well&nbsp;as<br>
+many&nbsp;different&nbsp;data&nbsp;types.&nbsp;Check&nbsp;the&nbsp;documentation&nbsp;of&nbsp;the&nbsp;respective&nbsp;class<br>
+for&nbsp;further&nbsp;details.<br>
+&nbsp;<br>
+To&nbsp;do:<br>
+--&gt;&nbsp;write&nbsp;Hist&nbsp;algorithm,&nbsp;an&nbsp;on-line&nbsp;version&nbsp;of&nbsp;numpy.histogram,&nbsp;which<br>
+&nbsp;&nbsp;&nbsp;&nbsp;counts&nbsp;up&nbsp;each&nbsp;bin&nbsp;iteratively&nbsp;as&nbsp;more&nbsp;data&nbsp;values&nbsp;come&nbsp;in.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Package Contents</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="__builtin__.html#object">__builtin__.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="oalg.html#Mean">Mean</a>
+</font></dt><dt><font face="helvetica, arial"><a href="oalg.html#gMean">gMean</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Mean">class <strong>Mean</strong></a>(<a href="__builtin__.html#object">__builtin__.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>On-line&nbsp;algorithm&nbsp;to&nbsp;compute&nbsp;the&nbsp;sample&nbsp;arithmetic&nbsp;mean&nbsp;(average),&nbsp;plus<br>
+the&nbsp;corresponding&nbsp;sample&nbsp;variance.<br>
+&nbsp;<br>
+To&nbsp;be&nbsp;specific,&nbsp;the&nbsp;algorithm&nbsp;calculates&nbsp;an&nbsp;estimator&nbsp;for&nbsp;the&nbsp;sample<br>
+average&nbsp;and&nbsp;an&nbsp;estimator&nbsp;for&nbsp;the&nbsp;sample&nbsp;variance.<br>
+&nbsp;<br>
+After&nbsp;creating&nbsp;an&nbsp;instance&nbsp;of&nbsp;this&nbsp;class,&nbsp;add&nbsp;values&nbsp;to&nbsp;it&nbsp;using&nbsp;the&nbsp;method<br>
+"add".&nbsp;After&nbsp;at&nbsp;least&nbsp;one&nbsp;value&nbsp;has&nbsp;been&nbsp;added,&nbsp;the&nbsp;result&nbsp;can&nbsp;be&nbsp;obtained<br>
+by&nbsp;calling&nbsp;the&nbsp;instance&nbsp;or&nbsp;the&nbsp;method&nbsp;"mean".&nbsp;Sample&nbsp;variance,&nbsp;sample<br>
+standard&nbsp;deviation&nbsp;and&nbsp;sample&nbsp;standard&nbsp;error&nbsp;can&nbsp;be&nbsp;obtained&nbsp;by&nbsp;calling<br>
+the&nbsp;methods&nbsp;"var",&nbsp;"std"&nbsp;and&nbsp;"stderr".<br>
+&nbsp;<br>
+&nbsp;<br>
+Working&nbsp;principle<br>
+-----------------<br>
+&nbsp;<br>
+Besides&nbsp;the&nbsp;sample&nbsp;count&nbsp;N,&nbsp;the&nbsp;class&nbsp;only&nbsp;has&nbsp;to&nbsp;remember&nbsp;two&nbsp;other&nbsp;values<br>
+(scalar&nbsp;or&nbsp;nd-array):<br>
+1.&nbsp;The&nbsp;sum&nbsp;of&nbsp;all&nbsp;added&nbsp;values,&nbsp;sigma.<br>
+2.&nbsp;The&nbsp;sum&nbsp;of&nbsp;all&nbsp;squared&nbsp;values,&nbsp;sigma2.<br>
+With&nbsp;this&nbsp;information,&nbsp;it&nbsp;is&nbsp;easy&nbsp;to&nbsp;calculate&nbsp;the&nbsp;arithmetic&nbsp;mean&nbsp;and<br>
+the&nbsp;sample&nbsp;variance:<br>
+mean&nbsp;=&nbsp;sigma/N<br>
+var&nbsp;&nbsp;=&nbsp;1/(N-1)*sigma2-sigma**2/(N*(N-1))<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Mean-__call__"><strong>__call__</strong></a>(self)</dt><dd><tt>Alias&nbsp;for&nbsp;<a href="#Mean-mean">mean</a>().</tt></dd></dl>
+
+<dl><dt><a name="Mean-__init__"><strong>__init__</strong></a>(self, shape<font color="#909090">=None</font>, dtype<font color="#909090">=None</font>, init_value<font color="#909090">=None</font>, init_var<font color="#909090">=None</font>, init_count<font color="#909090">=None</font>)</dt><dd><tt>Initialize&nbsp;the&nbsp;instance.&nbsp;The&nbsp;desired&nbsp;data&nbsp;shape&nbsp;and&nbsp;data&nbsp;type&nbsp;can&nbsp;be<br>
+set,&nbsp;otherwise&nbsp;they&nbsp;are&nbsp;infered&nbsp;from&nbsp;the&nbsp;first&nbsp;added&nbsp;value,&nbsp;or&nbsp;from&nbsp;the<br>
+given&nbsp;initial&nbsp;values.&nbsp;A&nbsp;previously&nbsp;stopped&nbsp;calculation&nbsp;can&nbsp;be&nbsp;continued<br>
+by&nbsp;setting&nbsp;the&nbsp;three&nbsp;needed&nbsp;initial&nbsp;values:<br>
+init_value&nbsp;:&nbsp;sample&nbsp;mean&nbsp;of&nbsp;the&nbsp;old&nbsp;calculation<br>
+init_count&nbsp;:&nbsp;sample&nbsp;count&nbsp;of&nbsp;the&nbsp;old&nbsp;calculation<br>
+init_var&nbsp;&nbsp;&nbsp;:&nbsp;sample&nbsp;variance&nbsp;of&nbsp;the&nbsp;old&nbsp;calculation</tt></dd></dl>
+
+<dl><dt><a name="Mean-__repr__"><strong>__repr__</strong></a>(self)</dt><dd><tt>Return&nbsp;complete&nbsp;string&nbsp;representation.</tt></dd></dl>
+
+<dl><dt><a name="Mean-__str__"><strong>__str__</strong></a>(self)</dt><dd><tt>Return&nbsp;short&nbsp;string&nbsp;representation.</tt></dd></dl>
+
+<dl><dt><a name="Mean-add"><strong>add</strong></a>(self, value)</dt><dd><tt>Add&nbsp;a&nbsp;value.&nbsp;It&nbsp;can&nbsp;be&nbsp;a&nbsp;scalar&nbsp;or&nbsp;an&nbsp;n-dimensional&nbsp;array,&nbsp;but&nbsp;it<br>
+must&nbsp;be&nbsp;consistent&nbsp;with&nbsp;values&nbsp;that&nbsp;were&nbsp;already&nbsp;added.</tt></dd></dl>
+
+<dl><dt><a name="Mean-ci"><strong>ci</strong></a>(self, n<font color="#909090">=1</font>)</dt><dd><tt>Return&nbsp;confidence&nbsp;interval&nbsp;(CI)&nbsp;of&nbsp;order&nbsp;n.&nbsp;Two&nbsp;length-N&nbsp;arrays&nbsp;are<br>
+returned,&nbsp;containing&nbsp;the&nbsp;value&nbsp;of&nbsp;the&nbsp;lower&nbsp;and&nbsp;the&nbsp;upper&nbsp;part&nbsp;of&nbsp;the<br>
+CI,&nbsp;respectively,&nbsp;relative&nbsp;to&nbsp;the&nbsp;mean&nbsp;value.&nbsp;In&nbsp;other&nbsp;words,&nbsp;the&nbsp;CI<br>
+stretches&nbsp;from&nbsp;mean-array1&nbsp;to&nbsp;mean+array2.&nbsp;The&nbsp;width&nbsp;of&nbsp;the&nbsp;CI&nbsp;is<br>
+array1+array2.</tt></dd></dl>
+
+<dl><dt><a name="Mean-mean"><strong>mean</strong></a>(self)</dt><dd><tt>Calculate&nbsp;the&nbsp;sample&nbsp;arithmetic&nbsp;mean.</tt></dd></dl>
+
+<dl><dt><a name="Mean-mspair"><strong>mspair</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;pair&nbsp;of&nbsp;sample&nbsp;mean&nbsp;and&nbsp;sample&nbsp;standard&nbsp;error&nbsp;(2-tuple).</tt></dd></dl>
+
+<dl><dt><a name="Mean-sem"><strong>sem</strong></a>(self)</dt><dd><tt>Alias&nbsp;for&nbsp;"stderr".</tt></dd></dl>
+
+<dl><dt><a name="Mean-std"><strong>std</strong></a>(self)</dt><dd><tt>Calculate&nbsp;the&nbsp;sample&nbsp;standard&nbsp;deviation,&nbsp;which&nbsp;is&nbsp;the&nbsp;square&nbsp;root&nbsp;of<br>
+the&nbsp;sample&nbsp;variance.</tt></dd></dl>
+
+<dl><dt><a name="Mean-stderr"><strong>stderr</strong></a>(self)</dt><dd><tt>Calculate&nbsp;the&nbsp;sample&nbsp;standard&nbsp;error&nbsp;of&nbsp;the&nbsp;mean,&nbsp;which&nbsp;is&nbsp;the&nbsp;sample<br>
+standard&nbsp;deviation&nbsp;devided&nbsp;by&nbsp;sqrt(N).</tt></dd></dl>
+
+<dl><dt><a name="Mean-var"><strong>var</strong></a>(self)</dt><dd><tt>Calculate&nbsp;the&nbsp;sample&nbsp;variance.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>count</strong></dt>
+<dd><tt>Return&nbsp;the&nbsp;current&nbsp;sample&nbsp;count.</tt></dd>
+</dl>
+<dl><dt><strong>dtype</strong></dt>
+<dd><tt>Return&nbsp;data&nbsp;type.</tt></dd>
+</dl>
+<dl><dt><strong>ndim</strong></dt>
+<dd><tt>Return&nbsp;number&nbsp;of&nbsp;dimensions&nbsp;of&nbsp;the&nbsp;allowed&nbsp;values.</tt></dd>
+</dl>
+<dl><dt><strong>shape</strong></dt>
+<dd><tt>Return&nbsp;data&nbsp;shape.</tt></dd>
+</dl>
+<dl><dt><strong>size</strong></dt>
+<dd><tt>Return&nbsp;number&nbsp;of&nbsp;elements&nbsp;of&nbsp;the&nbsp;allowed&nbsp;values.</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="gMean">class <strong>gMean</strong></a>(<a href="__builtin__.html#object">__builtin__.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>On-line&nbsp;algorithm&nbsp;to&nbsp;compute&nbsp;the&nbsp;sample&nbsp;geometric&nbsp;mean,&nbsp;plus&nbsp;the<br>
+corresponding&nbsp;variance.<br>
+&nbsp;<br>
+To&nbsp;be&nbsp;specific,&nbsp;the&nbsp;algorithm&nbsp;calculates&nbsp;an&nbsp;estimator&nbsp;for&nbsp;the&nbsp;sample<br>
+geometric&nbsp;mean&nbsp;and&nbsp;an&nbsp;estimator&nbsp;for&nbsp;the&nbsp;corresponding&nbsp;sample&nbsp;variance.<br>
+&nbsp;<br>
+After&nbsp;creating&nbsp;an&nbsp;instance&nbsp;of&nbsp;this&nbsp;class,&nbsp;add&nbsp;values&nbsp;to&nbsp;it&nbsp;using&nbsp;the&nbsp;method<br>
+"add".&nbsp;After&nbsp;at&nbsp;least&nbsp;one&nbsp;value&nbsp;has&nbsp;been&nbsp;added,&nbsp;the&nbsp;result&nbsp;can&nbsp;be&nbsp;obtained<br>
+by&nbsp;calling&nbsp;the&nbsp;instance&nbsp;or&nbsp;the&nbsp;method&nbsp;"gmean".&nbsp;Sample&nbsp;variance,&nbsp;sample<br>
+standard&nbsp;deviation&nbsp;and&nbsp;sample&nbsp;standard&nbsp;error&nbsp;can&nbsp;be&nbsp;obtained&nbsp;by&nbsp;calling&nbsp;the<br>
+methods&nbsp;"var",&nbsp;"std"&nbsp;and&nbsp;"stderr".<br>
+&nbsp;<br>
+Working&nbsp;principle<br>
+-----------------<br>
+&nbsp;<br>
+Besides&nbsp;the&nbsp;sample&nbsp;count&nbsp;N,&nbsp;the&nbsp;class&nbsp;only&nbsp;has&nbsp;to&nbsp;remember&nbsp;two&nbsp;other&nbsp;values<br>
+(scalar&nbsp;or&nbsp;nd-array):<br>
+1.&nbsp;The&nbsp;sum&nbsp;of&nbsp;the&nbsp;logarithm&nbsp;of&nbsp;all&nbsp;added&nbsp;values,&nbsp;gamma.<br>
+2.&nbsp;The&nbsp;sum&nbsp;of&nbsp;the&nbsp;squared&nbsp;logarithms&nbsp;of&nbsp;all&nbsp;added&nbsp;values,&nbsp;gamma2.<br>
+With&nbsp;this&nbsp;information,&nbsp;the&nbsp;sample&nbsp;geometric&nbsp;mean&nbsp;and<br>
+the&nbsp;sample&nbsp;variance&nbsp;can&nbsp;be&nbsp;calculated&nbsp;as&nbsp;follows:<br>
+mean&nbsp;=&nbsp;exp(gamma/N)<br>
+var&nbsp;&nbsp;=&nbsp;exp(2*gamma/N)*(1/(N-1)*gamma2-gamma**2/(N*(N-1)))<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="gMean-__call__"><strong>__call__</strong></a>(self)</dt><dd><tt>Alias&nbsp;for&nbsp;the&nbsp;method&nbsp;<a href="#gMean-mean">mean</a>().</tt></dd></dl>
+
+<dl><dt><a name="gMean-__init__"><strong>__init__</strong></a>(self, shape<font color="#909090">=None</font>, dtype<font color="#909090">=None</font>, init_value<font color="#909090">=None</font>, init_var<font color="#909090">=None</font>, init_count<font color="#909090">=None</font>)</dt><dd><tt>Initialize&nbsp;the&nbsp;instance.&nbsp;The&nbsp;desired&nbsp;data&nbsp;shape&nbsp;and&nbsp;data&nbsp;type&nbsp;can&nbsp;be<br>
+set,&nbsp;otherwise&nbsp;they&nbsp;are&nbsp;infered&nbsp;from&nbsp;the&nbsp;first&nbsp;added&nbsp;value,&nbsp;or&nbsp;from&nbsp;the<br>
+given&nbsp;initial&nbsp;values.&nbsp;A&nbsp;previously&nbsp;stopped&nbsp;calculation&nbsp;can&nbsp;be&nbsp;continued<br>
+by&nbsp;setting&nbsp;the&nbsp;three&nbsp;needed&nbsp;initial&nbsp;values:<br>
+init_value&nbsp;:&nbsp;the&nbsp;result&nbsp;for&nbsp;the&nbsp;sample&nbsp;mean&nbsp;of&nbsp;the&nbsp;old&nbsp;calculation<br>
+init_count&nbsp;:&nbsp;the&nbsp;sample&nbsp;count&nbsp;of&nbsp;the&nbsp;old&nbsp;calculation<br>
+init_var&nbsp;&nbsp;&nbsp;:&nbsp;sample&nbsp;variance&nbsp;of&nbsp;the&nbsp;old&nbsp;calculation</tt></dd></dl>
+
+<dl><dt><a name="gMean-__repr__"><strong>__repr__</strong></a>(self)</dt><dd><tt>Return&nbsp;complete&nbsp;string&nbsp;representation.</tt></dd></dl>
+
+<dl><dt><a name="gMean-__str__"><strong>__str__</strong></a>(self)</dt><dd><tt>Return&nbsp;short&nbsp;string&nbsp;representation.</tt></dd></dl>
+
+<dl><dt><a name="gMean-add"><strong>add</strong></a>(self, value)</dt><dd><tt>Add&nbsp;a&nbsp;value.&nbsp;It&nbsp;can&nbsp;be&nbsp;a&nbsp;scalar&nbsp;or&nbsp;an&nbsp;n-dimensional&nbsp;array,&nbsp;but&nbsp;it<br>
+must&nbsp;be&nbsp;consistent&nbsp;with&nbsp;values&nbsp;that&nbsp;were&nbsp;already&nbsp;added.</tt></dd></dl>
+
+<dl><dt><a name="gMean-ci"><strong>ci</strong></a>(self, n<font color="#909090">=1</font>)</dt><dd><tt>Return&nbsp;confidence&nbsp;interval&nbsp;(CI)&nbsp;of&nbsp;order&nbsp;n.&nbsp;Two&nbsp;arrays&nbsp;with&nbsp;the&nbsp;same<br>
+shape&nbsp;as&nbsp;the&nbsp;input&nbsp;data&nbsp;are&nbsp;returned,&nbsp;containing&nbsp;the&nbsp;value&nbsp;of&nbsp;the&nbsp;lower<br>
+and&nbsp;the&nbsp;upper&nbsp;part&nbsp;of&nbsp;the&nbsp;CI&nbsp;for&nbsp;every&nbsp;array&nbsp;element,&nbsp;respectively,<br>
+relative&nbsp;to&nbsp;the&nbsp;mean&nbsp;value.&nbsp;In&nbsp;other&nbsp;words,&nbsp;the&nbsp;CI&nbsp;stretches&nbsp;from<br>
+mean-array1&nbsp;to&nbsp;mean+array2.&nbsp;The&nbsp;width&nbsp;of&nbsp;the&nbsp;CI&nbsp;is&nbsp;array1+array2.</tt></dd></dl>
+
+<dl><dt><a name="gMean-mean"><strong>mean</strong></a>(self)</dt><dd><tt>Calculate&nbsp;the&nbsp;sample&nbsp;geometric&nbsp;mean.</tt></dd></dl>
+
+<dl><dt><a name="gMean-mspair"><strong>mspair</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;pair&nbsp;of&nbsp;mean&nbsp;and&nbsp;standard&nbsp;error&nbsp;(2-tuple).</tt></dd></dl>
+
+<dl><dt><a name="gMean-sem"><strong>sem</strong></a>(self)</dt><dd><tt>Alias&nbsp;for&nbsp;"stderr".</tt></dd></dl>
+
+<dl><dt><a name="gMean-std"><strong>std</strong></a>(self)</dt><dd><tt>Calculate&nbsp;the&nbsp;sample&nbsp;standard&nbsp;deviation,&nbsp;which&nbsp;is&nbsp;the&nbsp;square&nbsp;root<br>
+of&nbsp;the&nbsp;sample&nbsp;variance.</tt></dd></dl>
+
+<dl><dt><a name="gMean-stderr"><strong>stderr</strong></a>(self)</dt><dd><tt>Calculate&nbsp;the&nbsp;standard&nbsp;error&nbsp;of&nbsp;the&nbsp;geometric&nbsp;mean.<br>
+&nbsp;<br>
+According&nbsp;to&nbsp;[Norris1940],&nbsp;the&nbsp;sample&nbsp;standard&nbsp;error&nbsp;is&nbsp;equal&nbsp;to&nbsp;the<br>
+sample&nbsp;standard&nbsp;deviation&nbsp;devided&nbsp;by&nbsp;sqrt(N-1).</tt></dd></dl>
+
+<dl><dt><a name="gMean-var"><strong>var</strong></a>(self)</dt><dd><tt>Calculate&nbsp;the&nbsp;sample&nbsp;variance.<br>
+&nbsp;<br>
+Note:&nbsp;Because&nbsp;a&nbsp;numerically&nbsp;unstable&nbsp;algorithm&nbsp;for&nbsp;the&nbsp;variance&nbsp;is<br>
+used,&nbsp;sometimes&nbsp;the&nbsp;variance&nbsp;takes&nbsp;small&nbsp;negative&nbsp;values.&nbsp;To&nbsp;circumvent<br>
+this,&nbsp;those&nbsp;values&nbsp;are&nbsp;set&nbsp;to&nbsp;zero.&nbsp;&nbsp;Tests&nbsp;show&nbsp;that&nbsp;even&nbsp;with&nbsp;a<br>
+million&nbsp;samples,&nbsp;the&nbsp;error&nbsp;is&nbsp;still&nbsp;of&nbsp;the&nbsp;order&nbsp;1e-10.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>count</strong></dt>
+<dd><tt>Return&nbsp;the&nbsp;current&nbsp;sample&nbsp;count.</tt></dd>
+</dl>
+<dl><dt><strong>dtype</strong></dt>
+<dd><tt>Return&nbsp;data&nbsp;type.</tt></dd>
+</dl>
+<dl><dt><strong>ndim</strong></dt>
+<dd><tt>Return&nbsp;number&nbsp;of&nbsp;dimensions&nbsp;of&nbsp;the&nbsp;allowed&nbsp;values.</tt></dd>
+</dl>
+<dl><dt><strong>shape</strong></dt>
+<dd><tt>Return&nbsp;data&nbsp;shape.</tt></dd>
+</dl>
+<dl><dt><strong>size</strong></dt>
+<dd><tt>Return&nbsp;number&nbsp;of&nbsp;elements&nbsp;of&nbsp;the&nbsp;allowed&nbsp;values.</tt></dd>
+</dl>
+</td></tr></table></td></tr></table>
+</body></html>
