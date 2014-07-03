@@ -1,0 +1,675 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>oalg &mdash; oalg 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="oalg 0.1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">oalg 0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for oalg</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c"># Copyright notice</span>
+<span class="c"># ----------------</span>
+<span class="c">#</span>
+<span class="c"># Copyright (C) 2013-2014 Daniel Jung</span>
+<span class="c"># Contact: djungbremen@gmail.com</span>
+<span class="c">#</span>
+<span class="c"># This program is free software; you can redistribute it and/or modify it</span>
+<span class="c"># under the terms of the GNU General Public License as published by the Free</span>
+<span class="c"># Software Foundation; either version 2 of the License, or (at your option)</span>
+<span class="c"># any later version.</span>
+<span class="c">#</span>
+<span class="c"># This program is distributed in the hope that it will be useful, but WITHOUT</span>
+<span class="c"># ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or</span>
+<span class="c"># FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for</span>
+<span class="c"># more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU General Public License along</span>
+<span class="c"># with this program; if not, write to the Free Software Foundation, Inc.,</span>
+<span class="c"># 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.</span>
+<span class="c">#</span>
+<span class="sd">&quot;&quot;&quot;Collection of on-line algorithms. Most of them are on-line versions of their</span>
+<span class="sd">offline counterparts in numpy, but because of their on-line nature, they are</span>
+<span class="sd">formulated as classes instead of functions.</span>
+
+<span class="sd">For further information about on-line algorithms, please check Wikipedia:</span>
+<span class="sd">http://en.wikipedia.org/wiki/On-line_algorithm</span>
+
+<span class="sd">The usage is always as follows:</span>
+<span class="sd">1. In front of an (probably infinite) loop, instantiate the class.</span>
+<span class="sd">2. Then, within each iteration, add some data to the class using the &quot;add&quot;</span>
+<span class="sd">   method.</span>
+<span class="sd">3. The result of the calculation can be obtained at any point (after the loop</span>
+<span class="sd">   has been exited, but also within the loop) by calling the instance.</span>
+
+<span class="sd">Most classes accept scalar values as well as n-dimensional arrays, as well as</span>
+<span class="sd">many different data types. Check the documentation of the respective class</span>
+<span class="sd">for further details.&quot;&quot;&quot;</span>
+<span class="c">#</span>
+<span class="c"># To do:</span>
+<span class="c"># --&gt; write Hist algorithm, an on-line version of numpy.histogram, which</span>
+<span class="c">#     counts up each bin iteratively as more data values come in.</span>
+<span class="c">#</span>
+<span class="c"># 2012-08-03 - 2013-12-18</span>
+<span class="c"># based on ialg, developed from 2012-04-20 until 2012-07-16</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+
+<div class="viewcode-block" id="Mean"><a class="viewcode-back" href="../index.html#oalg.Mean">[docs]</a><span class="k">class</span> <span class="nc">Mean</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;On-line algorithm to compute the sample arithmetic mean (average), plus</span>
+<span class="sd">    the corresponding sample variance.</span>
+
+<span class="sd">    To be specific, the algorithm calculates an estimator for the sample</span>
+<span class="sd">    average and an estimator for the sample variance.</span>
+
+<span class="sd">    After creating an instance of this class, add values to it using the method</span>
+<span class="sd">    &quot;add&quot;. After at least one value has been added, the result can be obtained</span>
+<span class="sd">    by calling the instance or the method &quot;mean&quot;. Sample variance, sample</span>
+<span class="sd">    standard deviation and sample standard error can be obtained by calling</span>
+<span class="sd">    the methods &quot;var&quot;, &quot;std&quot; and &quot;stderr&quot;.</span>
+
+
+<span class="sd">    Working principle</span>
+<span class="sd">    -----------------</span>
+
+<span class="sd">    Besides the sample count N, the class only has to remember two other values</span>
+<span class="sd">    (scalar or nd-array):</span>
+<span class="sd">    1. The sum of all added values, sigma.</span>
+<span class="sd">    2. The sum of all squared values, sigma2.</span>
+<span class="sd">    With this information, it is easy to calculate the arithmetic mean and</span>
+<span class="sd">    the sample variance:</span>
+<span class="sd">    mean = sigma/N</span>
+<span class="sd">    var  = 1/(N-1)*sigma2-sigma**2/(N*(N-1))&quot;&quot;&quot;</span>
+    <span class="c"># 2012-08-03 - 2012-09-06</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">init_value</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">init_var</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">init_count</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the instance. The desired data shape and data type can be</span>
+<span class="sd">        set, otherwise they are infered from the first added value, or from the</span>
+<span class="sd">        given initial values. A previously stopped calculation can be continued</span>
+<span class="sd">        by setting the three needed initial values:</span>
+<span class="sd">        init_value : sample mean of the old calculation</span>
+<span class="sd">        init_count : sample count of the old calculation</span>
+<span class="sd">        init_var   : sample variance of the old calculation&quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2013-06-19</span>
+
+        <span class="c"># check arguments</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">init_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">init_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="o">+</span> <span class="p">(</span><span class="n">init_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+                <span class="o">+</span> <span class="p">(</span><span class="n">init_var</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">))</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;if initial values are given, all three types &#39;</span> <span class="o">+</span>
+                             <span class="s">&#39;of information (count, value and variance) &#39;</span> <span class="o">+</span>
+                             <span class="s">&#39;must be given&#39;</span><span class="p">)</span>
+
+        <span class="c"># get initial values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">init_count</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">init_value</span><span class="p">))</span>\
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="k">else</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sigma2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">init_var</span><span class="p">)</span>
+                                   <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">)</span> \
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="k">else</span> <span class="bp">None</span>
+        <span class="n">init_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span><span class="o">.</span><span class="n">shape</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span><span class="p">,</span> <span class="s">&#39;shape&#39;</span><span class="p">)</span> \
+            <span class="k">else</span> <span class="bp">None</span>
+        <span class="n">init_dtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span><span class="o">.</span><span class="n">dtype</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span><span class="p">,</span> <span class="s">&#39;dtype&#39;</span><span class="p">)</span> \
+            <span class="k">else</span> <span class="bp">None</span>
+
+        <span class="c"># get shape and data type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="n">init_shape</span> <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span> <span class="ow">or</span> <span class="n">init_dtype</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the current sample count.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return data type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return data shape.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of elements of the allowed values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">)</span> \
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ndim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of dimensions of the allowed values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">)</span> \
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a value. It can be a scalar or an n-dimensional array, but it</span>
+<span class="sd">        must be consistent with values that were already added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="c"># based on ialg.MeanAlgorithm.add from 2012-02-17</span>
+        <span class="c"># and ialg.MeanAlgorithm.check_added from 2011-11-25</span>
+
+        <span class="c"># check the value, adopt shape and data type from it if needed</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sigma2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;illegal value&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">==</span> <span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s">&#39;__iter__&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;scalar value expected&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;illegal shape&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">dtype</span>\
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s">&#39;__iter__&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sigma2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma2</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
+
+        <span class="c"># add the new value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span> <span class="o">+=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sigma2</span> <span class="o">+=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the sample arithmetic mean.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">==</span> <span class="p">():</span>
+                <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Alias for mean().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the sample variance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">==</span> <span class="p">():</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sigma2</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span>
+                            <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="mf">0.</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma2</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> \
+                        <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">std</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the sample standard deviation, which is the square root of</span>
+<span class="sd">        the sample variance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-09-06</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">stderr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the sample standard error of the mean, which is the sample</span>
+<span class="sd">        standard deviation devided by sqrt(N).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-09-06 - 2012-09-06</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">sem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Alias for &quot;stderr&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-09-06 - 2012-09-06</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">mspair</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the pair of sample mean and sample standard error (2-tuple).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2013-06-19</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return complete string representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s">&#39;shape&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s">&#39;dtype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span>  <span class="c"># .__name__</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s">&#39;init_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="s">&#39;init_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="n">args</span><span class="p">[</span><span class="s">&#39;init_var&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="s">&#39;init_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+                <span class="n">args</span><span class="p">[</span><span class="s">&#39;init_var&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+        <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">(</span><span class="si">%s</span><span class="s">)&#39;</span> \
+            <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="s">&#39;</span>
+                                              <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                                              <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return short string representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="s">&#39;&lt;</span><span class="si">%s</span><span class="s"> instance with </span><span class="si">%i</span><span class="s"> value</span><span class="si">%s</span><span class="s"> (shape=</span><span class="si">%s</span><span class="s">, dtype=</span><span class="si">%s</span><span class="s">)&gt;&#39;</span> \
+            <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plural</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>  <span class="c"># .__name__</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_plural</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns an empty string is the given number equals 1, otherwise &quot;s&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="c"># copied from cofunc.CoFunc._plural from 2012-07-11</span>
+        <span class="k">return</span> <span class="s">&#39;&#39;</span> <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s">&#39;s&#39;</span>
+
+    <span class="k">def</span> <span class="nf">ci</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return confidence interval (CI) of order n. Two length-N arrays are</span>
+<span class="sd">        returned, containing the value of the lower and the upper part of the</span>
+<span class="sd">        CI, respectively, relative to the mean value. In other words, the CI</span>
+<span class="sd">        stretches from mean-array1 to mean+array2. The width of the CI is</span>
+<span class="sd">        array1+array2.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-10-09 - 2012-10-09</span>
+        <span class="k">assert</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;only n=1 supported right now&#39;</span>
+        <span class="n">stderr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">stderr</span><span class="p">,</span> <span class="n">stderr</span>
+
+</div>
+<div class="viewcode-block" id="gMean"><a class="viewcode-back" href="../index.html#oalg.gMean">[docs]</a><span class="k">class</span> <span class="nc">gMean</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;On-line algorithm to compute the sample geometric mean, plus the</span>
+<span class="sd">    corresponding variance.</span>
+
+<span class="sd">    To be specific, the algorithm calculates an estimator for the sample</span>
+<span class="sd">    geometric mean and an estimator for the corresponding sample variance.</span>
+
+<span class="sd">    After creating an instance of this class, add values to it using the method</span>
+<span class="sd">    &quot;add&quot;. After at least one value has been added, the result can be obtained</span>
+<span class="sd">    by calling the instance or the method &quot;gmean&quot;. Sample variance, sample</span>
+<span class="sd">    standard deviation and sample standard error can be obtained by calling the</span>
+<span class="sd">    methods &quot;var&quot;, &quot;std&quot; and &quot;stderr&quot;.</span>
+
+<span class="sd">    Working principle</span>
+<span class="sd">    -----------------</span>
+
+<span class="sd">    Besides the sample count N, the class only has to remember two other values</span>
+<span class="sd">    (scalar or nd-array):</span>
+<span class="sd">    1. The sum of the logarithm of all added values, gamma.</span>
+<span class="sd">    2. The sum of the squared logarithms of all added values, gamma2.</span>
+<span class="sd">    With this information, the sample geometric mean and</span>
+<span class="sd">    the sample variance can be calculated as follows:</span>
+<span class="sd">    mean = exp(gamma/N)</span>
+<span class="sd">    var  = exp(2*gamma/N)*(1/(N-1)*gamma2-gamma**2/(N*(N-1)))&quot;&quot;&quot;</span>
+    <span class="c"># 2012-08-03 - 2013-06-19</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">init_value</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">init_var</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">init_count</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the instance. The desired data shape and data type can be</span>
+<span class="sd">        set, otherwise they are infered from the first added value, or from the</span>
+<span class="sd">        given initial values. A previously stopped calculation can be continued</span>
+<span class="sd">        by setting the three needed initial values:</span>
+<span class="sd">        init_value : the result for the sample mean of the old calculation</span>
+<span class="sd">        init_count : the sample count of the old calculation</span>
+<span class="sd">        init_var   : sample variance of the old calculation&quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2013-06-19</span>
+
+        <span class="c"># check arguments</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">init_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">init_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="o">+</span> <span class="p">(</span><span class="n">init_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+                <span class="o">+</span> <span class="p">(</span><span class="n">init_var</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">))</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;if initial values are given, all three types &#39;</span> <span class="o">+</span>
+                             <span class="s">&#39;of information (count, value, and variance &#39;</span> <span class="o">+</span>
+                             <span class="s">&#39;must be given&#39;</span><span class="p">)</span>
+
+        <span class="c"># get initial values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">init_count</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span>
+                                  <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">init_value</span><span class="p">)))</span> \
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="k">else</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gamma2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">init_var</span><span class="p">)</span>
+                                   <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">)</span>
+                                   <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">)</span> \
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="k">else</span> <span class="bp">None</span>
+        <span class="n">init_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span><span class="o">.</span><span class="n">shape</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span><span class="p">,</span> <span class="s">&#39;shape&#39;</span><span class="p">)</span> \
+            <span class="k">else</span> <span class="bp">None</span>
+        <span class="n">init_dtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span><span class="o">.</span><span class="n">dtype</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span><span class="p">,</span> <span class="s">&#39;dtype&#39;</span><span class="p">)</span> \
+            <span class="k">else</span> <span class="bp">None</span>
+
+        <span class="c"># get shape and data type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="n">init_shape</span> <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span> <span class="ow">or</span> <span class="n">init_dtype</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the current sample count.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return data type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return data shape.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of elements of the allowed values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">)</span> \
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ndim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of dimensions of the allowed values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">)</span> \
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a value. It can be a scalar or an n-dimensional array, but it</span>
+<span class="sd">        must be consistent with values that were already added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="c"># based on ialg.MeanAlgorithm.add from 2012-02-17</span>
+        <span class="c"># and ialg.MeanAlgorithm.check_added from 2011-11-25</span>
+
+        <span class="c"># check if value is zero</span>
+        <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;unable to add non-positive values&#39;</span><span class="p">)</span>
+
+        <span class="c"># check the value, adopt shape and data type from it if needed</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_gamma2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;illegal value&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">==</span> <span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s">&#39;__iter__&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;scalar value expected&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;illegal shape&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">dtype</span> \
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s">&#39;__iter__&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gamma2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma2</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
+
+        <span class="c"># add the new value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span> <span class="o">+=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gamma2</span> <span class="o">+=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the sample geometric mean.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2013-06-19</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">==</span> <span class="p">():</span>
+                <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Alias for the method mean().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the sample variance.</span>
+
+<span class="sd">        Note: Because a numerically unstable algorithm for the variance is</span>
+<span class="sd">        used, sometimes the variance takes small negative values. To circumvent</span>
+<span class="sd">        this, those values are set to zero.  Tests show that even with a</span>
+<span class="sd">        million samples, the error is still of the order 1e-10.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2013-06-19</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">==</span> <span class="p">():</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">)</span> \
+                        <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gamma2</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                           <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span>
+                           <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> \
+                        <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">)</span> \
+                        <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gamma2</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                           <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span>
+                           <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">result</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c"># force non-negative results</span>
+                    <span class="k">return</span> <span class="n">result</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">std</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the sample standard deviation, which is the square root</span>
+<span class="sd">        of the sample variance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2013-06-19</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">stderr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the standard error of the geometric mean.</span>
+
+<span class="sd">        According to [Norris1940], the sample standard error is equal to the</span>
+<span class="sd">        sample standard deviation devided by sqrt(N-1).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-09-06 - 2013-06-19</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="c">#return numpy.exp(numpy.sqrt(var/self._count))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">sem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Alias for &quot;stderr&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-09-06 - 2012-09-06</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">mspair</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the pair of mean and standard error (2-tuple).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2013-06-19</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return complete string representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s">&#39;shape&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s">&#39;dtype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s">&#39;init_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="s">&#39;init_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="n">args</span><span class="p">[</span><span class="s">&#39;init_var&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="s">&#39;init_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+                <span class="n">args</span><span class="p">[</span><span class="s">&#39;init_var&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+        <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">(</span><span class="si">%s</span><span class="s">)&#39;</span> \
+            <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="s">&#39;</span>
+                                              <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                                              <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return short string representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="k">return</span> <span class="s">&#39;&lt;</span><span class="si">%s</span><span class="s"> instance with </span><span class="si">%i</span><span class="s"> value</span><span class="si">%s</span><span class="s"> (shape=</span><span class="si">%s</span><span class="s">, dtype=</span><span class="si">%s</span><span class="s">)&gt;&#39;</span> \
+            <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plural</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>  <span class="c"># .__name__</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_plural</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns an empty string is the given number equals 1, otherwise &quot;s&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-08-03 - 2012-08-03</span>
+        <span class="c"># copied from cofunc.CoFunc._plural from 2012-07-11</span>
+        <span class="k">return</span> <span class="s">&#39;&#39;</span> <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s">&#39;s&#39;</span>
+
+    <span class="k">def</span> <span class="nf">ci</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return confidence interval (CI) of order n. Two arrays with the same</span>
+<span class="sd">        shape as the input data are returned, containing the value of the lower</span>
+<span class="sd">        and the upper part of the CI for every array element, respectively,</span>
+<span class="sd">        relative to the mean value. In other words, the CI stretches from</span>
+<span class="sd">        mean-array1 to mean+array2. The width of the CI is array1+array2.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># 2012-10-09 - 2013-06-19</span>
+        <span class="k">assert</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;only n=1 supported right now&#39;</span>
+        <span class="n">stderr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">stderr</span><span class="p">,</span> <span class="n">stderr</span>
+
+
+<span class="c">#class Hist</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">oalg 0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Daniel Jung.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

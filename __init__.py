@@ -21,58 +21,64 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 #
-"""Collection of on-line algorithms. Most of them are on-line versions of their
-offline counterparts in numpy, but because of their on-line nature, they are
+"""Collection of online algorithms. Most of them are online versions of their
+offline counterparts in numpy, but because of their online nature, they are
 formulated as classes instead of functions.
 
-For further information about on-line algorithms, please check Wikipedia:
-http://en.wikipedia.org/wiki/On-line_algorithm
+For further information about online algorithms, please check Wikipedia:
+http://en.wikipedia.org/wiki/Online_algorithm
 
-The usage is always as follows:
+Usage is as follows:
+
 1. In front of an (probably infinite) loop, instantiate the class.
-2. Then, within each iteration, add some data to the class using the "add"
-   method.
+2. Then, within each iteration, add some data to the class using the method
+   *add()*.
 3. The result of the calculation can be obtained at any point (after the loop
-   has been exited, but also within the loop) by calling the instance.
+   has been exited, but also within the loop) by calling the instance as a
+   function.
 
 Most classes accept scalar values as well as n-dimensional arrays, as well as
 many different data types. Check the documentation of the respective class
-for further details.
-
-To do:
---> write Hist algorithm, an on-line version of numpy.histogram, which
-    counts up each bin iteratively as more data values come in.
-"""
+for further details."""
+#
+# To do:
+# --> write Hist algorithm, an online version of numpy.histogram, which
+#     counts up each bin iteratively as more data values come in.
+#
 # 2012-08-03 - 2013-12-18
 # based on ialg, developed from 2012-04-20 until 2012-07-16
+
 import numpy
 
 
 class Mean(object):
-    """On-line algorithm to compute the sample arithmetic mean (average), plus
+    """Online algorithm to compute the sample arithmetic mean (average), plus
     the corresponding sample variance.
 
     To be specific, the algorithm calculates an estimator for the sample
     average and an estimator for the sample variance.
 
     After creating an instance of this class, add values to it using the method
-    "add". After at least one value has been added, the result can be obtained
-    by calling the instance or the method "mean". Sample variance, sample
+    *add*. After at least one value has been added, the result can be obtained
+    by calling the instance or the method *mean*. Sample variance, sample
     standard deviation and sample standard error can be obtained by calling
-    the methods "var", "std" and "stderr".
+    the methods *var*, *std* and *stderr*.
 
 
-    Working principle
-    -----------------
+    Working principle:
 
     Besides the sample count N, the class only has to remember two other values
     (scalar or nd-array):
+
     1. The sum of all added values, sigma.
     2. The sum of all squared values, sigma2.
+
     With this information, it is easy to calculate the arithmetic mean and
     the sample variance:
-    mean = sigma/N
-    var  = 1/(N-1)*sigma2-sigma**2/(N*(N-1))"""
+
+        mean = sigma/N
+
+        var  = 1/(N-1)*sigma2-sigma**2/(N*(N-1))"""
     # 2012-08-03 - 2012-09-06
 
     def __init__(self, shape=None, dtype=None,
@@ -81,6 +87,7 @@ class Mean(object):
         set, otherwise they are infered from the first added value, or from the
         given initial values. A previously stopped calculation can be continued
         by setting the three needed initial values:
+
         init_value : sample mean of the old calculation
         init_count : sample count of the old calculation
         init_var   : sample variance of the old calculation"""
@@ -112,45 +119,39 @@ class Mean(object):
 
     @property
     def count(self):
-        """Return the current sample count.
-        """
+        """Return the current sample count."""
         # 2012-08-03 - 2012-08-03
         return self._count
 
     @property
     def dtype(self):
-        """Return data type.
-        """
+        """Return data type."""
         # 2012-08-03 - 2012-08-03
         return self._dtype
 
     @property
     def shape(self):
-        """Return data shape.
-        """
+        """Return data shape."""
         # 2012-08-03 - 2012-08-03
         return self._shape
 
     @property
     def size(self):
-        """Return number of elements of the allowed values.
-        """
+        """Return number of elements of the allowed values."""
         # 2012-08-03 - 2012-08-03
         return numpy.prod(self._shape) \
             if self._shape is not None else None
 
     @property
     def ndim(self):
-        """Return number of dimensions of the allowed values.
-        """
+        """Return number of dimensions of the allowed values."""
         # 2012-08-03 - 2012-08-03
         return len(self._shape) \
             if self._shape is not None else None
 
     def add(self, value):
         """Add a value. It can be a scalar or an n-dimensional array, but it
-        must be consistent with values that were already added.
-        """
+        must be consistent with values that have already been added."""
         # 2012-08-03 - 2012-08-03
         # based on ialg.MeanAlgorithm.add from 2012-02-17
         # and ialg.MeanAlgorithm.check_added from 2011-11-25
@@ -181,8 +182,7 @@ class Mean(object):
         self._count += 1
 
     def mean(self):
-        """Calculate the sample arithmetic mean.
-        """
+        """Calculate the sample arithmetic mean."""
         # 2012-08-03 - 2012-08-03
         if self._count:
             if self._shape == ():
@@ -193,14 +193,12 @@ class Mean(object):
             return None
 
     def __call__(self):
-        """Alias for mean().
-        """
+        """Alias for *mean()*."""
         # 2012-08-03 - 2012-08-03
         return self.mean()
 
     def var(self):
-        """Calculate the sample variance.
-        """
+        """Calculate the sample variance."""
         # 2012-08-03 - 2012-08-03
         if self._count:
             if self._shape == ():
@@ -221,8 +219,7 @@ class Mean(object):
 
     def std(self):
         """Calculate the sample standard deviation, which is the square root of
-        the sample variance.
-        """
+        the sample variance."""
         # 2012-08-03 - 2012-09-06
         var = self.var()
         if var is None:
@@ -231,8 +228,7 @@ class Mean(object):
 
     def stderr(self):
         """Calculate the sample standard error of the mean, which is the sample
-        standard deviation devided by sqrt(N).
-        """
+        standard deviation devided by sqrt(N)."""
         # 2012-09-06 - 2012-09-06
         var = self.var()
         if var is None or self._count < 1:
@@ -240,20 +236,18 @@ class Mean(object):
         return numpy.sqrt(var/self._count)
 
     def sem(self):
-        """Alias for "stderr".
-        """
+        """Alias for *stderr()*."""
         # 2012-09-06 - 2012-09-06
         return self.stderr()
 
     def mspair(self):
-        """Return the pair of sample mean and sample standard error (2-tuple).
-        """
+        """Return the pair of sample mean and sample standard error
+        (2-tuple)."""
         # 2012-08-03 - 2013-06-19
         return self.mean(), self.stderr()
 
     def __repr__(self):
-        """Return complete string representation.
-        """
+        """Return complete string representation."""
         # 2012-08-03 - 2012-08-03
         args = {}
         if self._shape is not None:
@@ -274,8 +268,7 @@ class Mean(object):
                                               for key in args.keys()))
 
     def __str__(self):
-        """Return short string representation.
-        """
+        """Return short string representation."""
         # 2012-08-03 - 2012-08-03
         return '<%s instance with %i value%s (shape=%s, dtype=%s)>' \
             % (type(self).__name__, self._count, self._plural(self._count),
@@ -283,17 +276,17 @@ class Mean(object):
 
     @staticmethod
     def _plural(number):
-        """Returns an empty string is the given number equals 1, otherwise "s".
-        """
+        """Returns an empty string is the given number equals 1, otherwise
+        "s"."""
         # 2012-08-03 - 2012-08-03
         # copied from cofunc.CoFunc._plural from 2012-07-11
         return '' if number == 1 else 's'
 
     def ci(self, n=1):
-        """Return confidence interval (CI) of order n. Two length-N arrays are
-        returned, containing the value of the lower and the upper part of the
-        CI, respectively, relative to the mean value. In other words, the CI
-        stretches from mean-array1 to mean+array2. The width of the CI is
+        """Return confidence interval (CI) of order *n*. Two length-N arrays
+        are returned, containing the value of the lower and the upper part of
+        the CI, respectively, relative to the mean value. In other words, the
+        CI stretches from mean-array1 to mean+array2. The width of the CI is
         array1+array2.
         """
         # 2012-10-09 - 2012-10-09
@@ -303,29 +296,33 @@ class Mean(object):
 
 
 class gMean(object):
-    """On-line algorithm to compute the sample geometric mean, plus the
+    """Online algorithm to compute the sample geometric mean, plus the
     corresponding variance.
 
     To be specific, the algorithm calculates an estimator for the sample
     geometric mean and an estimator for the corresponding sample variance.
 
     After creating an instance of this class, add values to it using the method
-    "add". After at least one value has been added, the result can be obtained
-    by calling the instance or the method "gmean". Sample variance, sample
-    standard deviation and sample standard error can be obtained by calling the
-    methods "var", "std" and "stderr".
+    *add()*. After at least one value has been added, the result can be
+    obtained by calling the instance or the method *gmean()*. Sample variance,
+    sample standard deviation and sample standard error can be obtained by
+    calling the methods *var()*, *std()* and *stderr()*.
 
-    Working principle
-    -----------------
+
+    Working principle:
 
     Besides the sample count N, the class only has to remember two other values
     (scalar or nd-array):
+
     1. The sum of the logarithm of all added values, gamma.
     2. The sum of the squared logarithms of all added values, gamma2.
+
     With this information, the sample geometric mean and
     the sample variance can be calculated as follows:
-    mean = exp(gamma/N)
-    var  = exp(2*gamma/N)*(1/(N-1)*gamma2-gamma**2/(N*(N-1)))"""
+
+        mean = exp(gamma/N)
+
+        var  = exp(2*gamma/N)*(1/(N-1)*gamma2-gamma**2/(N*(N-1)))"""
     # 2012-08-03 - 2013-06-19
 
     def __init__(self, shape=None, dtype=None,
@@ -367,45 +364,39 @@ class gMean(object):
 
     @property
     def count(self):
-        """Return the current sample count.
-        """
+        """Return the current sample count."""
         # 2012-08-03 - 2012-08-03
         return self._count
 
     @property
     def dtype(self):
-        """Return data type.
-        """
+        """Return data type."""
         # 2012-08-03 - 2012-08-03
         return self._dtype
 
     @property
     def shape(self):
-        """Return data shape.
-        """
+        """Return data shape."""
         # 2012-08-03 - 2012-08-03
         return self._shape
 
     @property
     def size(self):
-        """Return number of elements of the allowed values.
-        """
+        """Return number of elements of the allowed values."""
         # 2012-08-03 - 2012-08-03
         return numpy.prod(self._shape) \
             if self._shape is not None else None
 
     @property
     def ndim(self):
-        """Return number of dimensions of the allowed values.
-        """
+        """Return number of dimensions of the allowed values."""
         # 2012-08-03 - 2012-08-03
         return len(self._shape) \
             if self._shape is not None else None
 
     def add(self, value):
         """Add a value. It can be a scalar or an n-dimensional array, but it
-        must be consistent with values that were already added.
-        """
+        must be consistent with values that were already added."""
         # 2012-08-03 - 2012-08-03
         # based on ialg.MeanAlgorithm.add from 2012-02-17
         # and ialg.MeanAlgorithm.check_added from 2011-11-25
@@ -440,8 +431,7 @@ class gMean(object):
         self._count += 1
 
     def mean(self):
-        """Calculate the sample geometric mean.
-        """
+        """Calculate the sample geometric mean."""
         # 2012-08-03 - 2013-06-19
         if self._count:
             if self._shape == ():
@@ -452,8 +442,7 @@ class gMean(object):
             return None
 
     def __call__(self):
-        """Alias for the method mean().
-        """
+        """Alias for the method *mean()*."""
         # 2012-08-03 - 2012-08-03
         return self.mean()
 
@@ -463,8 +452,7 @@ class gMean(object):
         Note: Because a numerically unstable algorithm for the variance is
         used, sometimes the variance takes small negative values. To circumvent
         this, those values are set to zero.  Tests show that even with a
-        million samples, the error is still of the order 1e-10.
-        """
+        million samples, the error is still of the order 1e-10."""
         # 2012-08-03 - 2013-06-19
         if self._count:
             if self._shape == ():
@@ -492,8 +480,7 @@ class gMean(object):
 
     def std(self):
         """Calculate the sample standard deviation, which is the square root
-        of the sample variance.
-        """
+        of the sample variance."""
         # 2012-08-03 - 2013-06-19
         var = self.var()
         if var is None:
@@ -504,8 +491,7 @@ class gMean(object):
         """Calculate the standard error of the geometric mean.
 
         According to [Norris1940], the sample standard error is equal to the
-        sample standard deviation devided by sqrt(N-1).
-        """
+        sample standard deviation devided by sqrt(N-1)."""
         # 2012-09-06 - 2013-06-19
         var = self.var()
         if var is None or self._count < 1:
@@ -514,20 +500,17 @@ class gMean(object):
         return self.std() / numpy.sqrt(self._count - 1)
 
     def sem(self):
-        """Alias for "stderr".
-        """
+        """Alias for *stderr()*."""
         # 2012-09-06 - 2012-09-06
         return self.stderr()
 
     def mspair(self):
-        """Return the pair of mean and standard error (2-tuple).
-        """
+        """Return the pair of mean and standard error (2-tuple)."""
         # 2012-08-03 - 2013-06-19
         return self.mean(), self.stderr()
 
     def __repr__(self):
-        """Return complete string representation.
-        """
+        """Return complete string representation."""
         # 2012-08-03 - 2012-08-03
         args = {}
         if self._shape is not None:
@@ -548,8 +531,7 @@ class gMean(object):
                                               for key in args.keys()))
 
     def __str__(self):
-        """Return short string representation.
-        """
+        """Return short string representation."""
         # 2012-08-03 - 2012-08-03
         return '<%s instance with %i value%s (shape=%s, dtype=%s)>' \
             % (type(self).__name__, self._count, self._plural(self._count),
@@ -557,19 +539,19 @@ class gMean(object):
 
     @staticmethod
     def _plural(number):
-        """Returns an empty string is the given number equals 1, otherwise "s".
-        """
+        """Returns an empty string is the given number equals 1, otherwise
+        "s"."""
         # 2012-08-03 - 2012-08-03
         # copied from cofunc.CoFunc._plural from 2012-07-11
         return '' if number == 1 else 's'
 
     def ci(self, n=1):
-        """Return confidence interval (CI) of order n. Two arrays with the same
-        shape as the input data are returned, containing the value of the lower
-        and the upper part of the CI for every array element, respectively,
-        relative to the mean value. In other words, the CI stretches from
-        mean-array1 to mean+array2. The width of the CI is array1+array2.
-        """
+        """Return confidence interval (CI) of order *n*. Two arrays with the
+        same shape as the input data are returned, containing the value of the
+        lower and the upper part of the CI for every array element,
+        respectively, relative to the mean value. In other words, the CI
+        stretches from mean-array1 to mean+array2. The width of the CI is
+        array1+array2."""
         # 2012-10-09 - 2013-06-19
         assert n == 1, 'only n=1 supported right now'
         stderr = self.stderr()
