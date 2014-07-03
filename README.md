@@ -1,7 +1,7 @@
 oalg
 ====
 
-Collection of on-line algorithms.
+Collection of online algorithms.
 
 
 
