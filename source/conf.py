@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # oalg documentation build configuration file, created by
-# sphinx-quickstart on Thu Jul  3 10:43:00 2014.
+# sphinx-quickstart on Thu Jul  3 11:01:43 2014.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
