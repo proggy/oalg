@@ -30,12 +30,12 @@ http://en.wikipedia.org/wiki/Online_algorithm
 
 Usage is as follows:
 
-1. In front of an (probably infinite) loop, instantiate the class.
-2. Then, within each iteration, add some data to the class using the method
-   *add()*.
-3. The result of the calculation can be obtained at any point (after the loop
-   has been exited, but also within the loop) by calling the instance as a
-   function.
+    1. In front of an (probably infinite) loop, instantiate the class.
+    2. Then, within each iteration, add some data to the class using the method
+       *add()*.
+    3. The result of the calculation can be obtained at any point (after the
+       loop has been exited, but also within the loop) by calling the instance
+       as a function.
 
 Most classes accept scalar values as well as n-dimensional arrays, as well as
 many different data types. Check the documentation of the respective class
@@ -45,7 +45,7 @@ for further details."""
 # --> write Hist algorithm, an online version of numpy.histogram, which
 #     counts up each bin iteratively as more data values come in.
 #
-# 2012-08-03 - 2013-12-18
+# 2012-08-03 - 2015-02-24
 # based on ialg, developed from 2012-04-20 until 2012-07-16
 
 import numpy
@@ -558,4 +558,179 @@ class gMean(object):
         return stderr, stderr
 
 
+class NaNMean(object):
+    """Online algorithm to compute the arithmetic mean of equally-shaped
+    n-dimensional arrays.  The number of samples is counted independently for
+    every item of the arrays. NaN values are ignored, i.e. they will not
+    increase the sample count for that particular item.
+
+    This can be seen as the online variant of numpy.nanmean.
+    """
+    # 2015-02-24
+
+    def __init__(self, shape=None, dtype=None):
+        if shape is None:
+            self._count = None
+            self._sigma = None
+            self._sigma2 = None
+        else:
+            self._count = numpy.zeros(shape, dtype=long)
+            self._sigma = numpy.zeros(shape, dtype=dtype)
+            self._sigma2 = numpy.zeros(shape, dtype=dtype)
+        self._added = 0
+
+    @property
+    def count(self):
+        """Return the current sample count."""
+        return self._count
+
+    @property
+    def added(self):
+        """Return the number of added values."""
+        return self._added
+
+    def add(self, value):
+        """Add a value (1D array). Its length must be consistent with the other
+        values added so far."""
+        value = numpy.array(value)
+        if self._sigma is None:
+            self._count = numpy.zeros_like(value, dtype=long)
+            self._sigma = numpy.zeros_like(value)
+            self._sigma2 = numpy.zeros_like(value)
+        self._sigma += numpy.nan_to_num(value)
+        self._sigma2 += numpy.nan_to_num(value) ** 2
+        self._count += 1 - numpy.isnan(value)
+        self._added += 1
+
+    def mean(self):
+        """Return the sample arithmetic mean."""
+        if self._count is not None:
+            zeros = self._count == 0
+            nonzeros = ~zeros
+            out = numpy.empty(shape=self._sigma.shape, dtype=float)
+            out[zeros] = numpy.NaN
+            out[nonzeros] = \
+                    self._sigma[nonzeros] * 1. / self._count[nonzeros]
+            return out
+        else:
+            return None
+
+    def var(self):
+        """Return the sample variance."""
+        if self._count is not None:
+            small = self._count < 2
+            notsmall = ~small
+            out = numpy.empty(shape=self._sigma.shape, dtype=float)
+            out[small] = numpy.NaN
+            out[notsmall] = \
+                    self._sigma2[notsmall] / (self._count[notsmall] - 1.) \
+                    - self._sigma[notsmall] ** 2. / self._count[notsmall] / \
+                    (self._count[notsmall] - 1.)
+            return out
+        else:
+            return None
+
+    def std(self):
+        """Return the sample standard deviation, which is the square root of
+        the sample variance."""
+        var = self.var()
+        if var is None:
+            return None
+        return numpy.sqrt(var)
+
+    def stderr(self):
+        """Return the sample standard error of the mean, which is the sample
+        standard deviation devided by sqrt(N)."""
+        var = self.var()
+        if var is None:
+            return None
+        zeros = self._count == 0
+        nonzeros = ~zeros
+        out = numpy.empty(shape=self._sigma.shape, dtype=float)
+        out[zeros] = numpy.NaN
+        out[nonzeros] = numpy.sqrt(var[nonzeros] / self._count[nonzeros])
+        return out
+
+
+class BinnedMean1D(object):
+    """Online algorithm to compute the sample arithmetic mean (average) of the
+    y-components of the given (x, y) value pairs (two 1D arrays), separately
+    for x-values that fall into the given intervals (*bins*).  The number of
+    samples is counted independently for every interval.  NaN values among the
+    y-values are ignored, i.e. they will not increase the sample count for that
+    particular interval.
+
+    Note: So far, only one (x, y) pair will be taken into account per interval,
+    i.e. that for which the x value is closest to the center of the interval.
+
+    The intervals are defined on initializing an instance.
+    """
+    # To do: If *num* is a positive integer, only take into account the given
+    # number *num* of x-values inside each interval. The x-values closest to
+    # the interval center are chosen first.
+
+    def __init__(self, bins):  # num=0
+        self._bins = bins
+        self._nbins = len(bins) - 1
+        self._nanmean = NaNMean(shape=(self._nbins,))
+        #self._num = num
+
+    @property
+    def bins(self):
+        return self._bins
+
+    @property
+    def nbins(self):
+        return self._nbins
+
+    #@property
+    #def num(self):
+    #    return self._num
+
+    def add(self, xvalues, yvalues):
+        """Only for x falling in interval i, take y into account..."""
+        selected_yvalues = numpy.empty(shape=(self._nbins,), dtype=float)
+        for left, right, i \
+                in zip(self._bins[:-1], self._bins[1:], xrange(self._nbins)):
+            inside = numpy.logical_and(xvalues >= left, xvalues < right)
+            yselected = yvalues[inside]
+            #if self._num > 0:
+            #num = 1
+            xselected = xvalues[inside]
+            center = (right + left) / 2
+            xshiftedabs = numpy.abs(xselected - center)
+            ordered = numpy.argsort(xshiftedabs)
+            yselected = yselected[ordered][:1]  # [:num]
+            if len(yselected) == 0:
+                selected_yvalues[i] = numpy.NaN
+            else:
+                #if self._num > 1:
+                    #raise NotImplementedError
+                selected_yvalues[i] = yselected[0]
+        self._nanmean.add(selected_yvalues)
+
+    def mean(self):
+        return self._nanmean.mean()
+
+    def var(self):
+        return self._nanmean.var()
+
+    def std(self):
+        return self._nanmean.std()
+
+    def stderr(self):
+        return self._nanmean.stderr()
+
+    @property
+    def count(self):
+        return self._nanmean.count
+
+    @property
+    def added(self):
+        return self._nanmean.added
+
+
+# To do:
+
 #class Hist
+#class NaNHist
