@@ -4,8 +4,8 @@
 # Copyright notice
 # ----------------
 #
-# Copyright (C) 2013-2014 Daniel Jung
-# Contact: djungbremen@gmail.com
+# Copyright (C) 2013-2023 Daniel Jung
+# Contact: proggy-contact@mailbox.org
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -43,8 +43,8 @@ To do:
 --> write Hist algorithm, an on-line version of numpy.histogram, which
     counts up each bin iteratively as more data values come in.
 """
-# 2012-08-03 - 2013-12-18
-# based on ialg, developed from 2012-04-20 until 2012-07-16
+__version__ = '0.1.1'
+
 import numpy
 
 
@@ -72,8 +72,8 @@ class Mean(object):
     With this information, it is easy to calculate the arithmetic mean and
     the sample variance:
     mean = sigma/N
-    var  = 1/(N-1)*sigma2-sigma**2/(N*(N-1))"""
-    # 2012-08-03 - 2012-09-06
+    var  = 1/(N-1)*sigma2-sigma**2/(N*(N-1))
+    """
 
     def __init__(self, shape=None, dtype=None,
                  init_value=None, init_var=None, init_count=None):
@@ -83,8 +83,8 @@ class Mean(object):
         by setting the three needed initial values:
         init_value : sample mean of the old calculation
         init_count : sample count of the old calculation
-        init_var   : sample variance of the old calculation"""
-        # 2012-08-03 - 2013-06-19
+        init_var   : sample variance of the old calculation
+        """
 
         # check arguments
         if ((init_count is not None and init_count > 0)
@@ -114,28 +114,24 @@ class Mean(object):
     def count(self):
         """Return the current sample count.
         """
-        # 2012-08-03 - 2012-08-03
         return self._count
 
     @property
     def dtype(self):
         """Return data type.
         """
-        # 2012-08-03 - 2012-08-03
         return self._dtype
 
     @property
     def shape(self):
         """Return data shape.
         """
-        # 2012-08-03 - 2012-08-03
         return self._shape
 
     @property
     def size(self):
         """Return number of elements of the allowed values.
         """
-        # 2012-08-03 - 2012-08-03
         return numpy.prod(self._shape) \
             if self._shape is not None else None
 
@@ -143,7 +139,6 @@ class Mean(object):
     def ndim(self):
         """Return number of dimensions of the allowed values.
         """
-        # 2012-08-03 - 2012-08-03
         return len(self._shape) \
             if self._shape is not None else None
 
@@ -151,9 +146,6 @@ class Mean(object):
         """Add a value. It can be a scalar or an n-dimensional array, but it
         must be consistent with values that were already added.
         """
-        # 2012-08-03 - 2012-08-03
-        # based on ialg.MeanAlgorithm.add from 2012-02-17
-        # and ialg.MeanAlgorithm.check_added from 2011-11-25
 
         # check the value, adopt shape and data type from it if needed
         if self._shape is None:
@@ -183,7 +175,6 @@ class Mean(object):
     def mean(self):
         """Calculate the sample arithmetic mean.
         """
-        # 2012-08-03 - 2012-08-03
         if self._count:
             if self._shape == ():
                 return (self._sigma / self._count).tolist()
@@ -195,7 +186,6 @@ class Mean(object):
     def __call__(self):
         """Alias for mean().
         """
-        # 2012-08-03 - 2012-08-03
         return self.mean()
 
     def var(self):
@@ -223,7 +213,6 @@ class Mean(object):
         """Calculate the sample standard deviation, which is the square root of
         the sample variance.
         """
-        # 2012-08-03 - 2012-09-06
         var = self.var()
         if var is None:
             return None
@@ -233,7 +222,6 @@ class Mean(object):
         """Calculate the sample standard error of the mean, which is the sample
         standard deviation devided by sqrt(N).
         """
-        # 2012-09-06 - 2012-09-06
         var = self.var()
         if var is None or self._count < 1:
             return None
@@ -242,19 +230,16 @@ class Mean(object):
     def sem(self):
         """Alias for "stderr".
         """
-        # 2012-09-06 - 2012-09-06
         return self.stderr()
 
     def mspair(self):
         """Return the pair of sample mean and sample standard error (2-tuple).
         """
-        # 2012-08-03 - 2013-06-19
         return self.mean(), self.stderr()
 
     def __repr__(self):
         """Return complete string representation.
         """
-        # 2012-08-03 - 2012-08-03
         args = {}
         if self._shape is not None:
             args['shape'] = self._shape
@@ -276,7 +261,6 @@ class Mean(object):
     def __str__(self):
         """Return short string representation.
         """
-        # 2012-08-03 - 2012-08-03
         return '<%s instance with %i value%s (shape=%s, dtype=%s)>' \
             % (type(self).__name__, self._count, self._plural(self._count),
                 self._shape, self._dtype)  # .__name__
@@ -284,9 +268,9 @@ class Mean(object):
     @staticmethod
     def _plural(number):
         """Returns an empty string is the given number equals 1, otherwise "s".
+
+        copy of cofunc.CoFunc._plural
         """
-        # 2012-08-03 - 2012-08-03
-        # copied from cofunc.CoFunc._plural from 2012-07-11
         return '' if number == 1 else 's'
 
     def ci(self, n=1):
@@ -294,9 +278,8 @@ class Mean(object):
         returned, containing the value of the lower and the upper part of the
         CI, respectively, relative to the mean value. In other words, the CI
         stretches from mean-array1 to mean+array2. The width of the CI is
-        array1+array2.
+        array1 + array2.
         """
-        # 2012-10-09 - 2012-10-09
         assert n == 1, 'only n=1 supported right now'
         stderr = self.stderr()
         return stderr, stderr
@@ -325,8 +308,8 @@ class gMean(object):
     With this information, the sample geometric mean and
     the sample variance can be calculated as follows:
     mean = exp(gamma/N)
-    var  = exp(2*gamma/N)*(1/(N-1)*gamma2-gamma**2/(N*(N-1)))"""
-    # 2012-08-03 - 2013-06-19
+    var  = exp(2*gamma/N)*(1/(N-1)*gamma2-gamma**2/(N*(N-1)))
+    """
 
     def __init__(self, shape=None, dtype=None,
                  init_value=None, init_var=None, init_count=None):
@@ -336,8 +319,8 @@ class gMean(object):
         by setting the three needed initial values:
         init_value : the result for the sample mean of the old calculation
         init_count : the sample count of the old calculation
-        init_var   : sample variance of the old calculation"""
-        # 2012-08-03 - 2013-06-19
+        init_var   : sample variance of the old calculation
+        """
 
         # check arguments
         if ((init_count is not None and init_count > 0)
@@ -369,28 +352,24 @@ class gMean(object):
     def count(self):
         """Return the current sample count.
         """
-        # 2012-08-03 - 2012-08-03
         return self._count
 
     @property
     def dtype(self):
         """Return data type.
         """
-        # 2012-08-03 - 2012-08-03
         return self._dtype
 
     @property
     def shape(self):
         """Return data shape.
         """
-        # 2012-08-03 - 2012-08-03
         return self._shape
 
     @property
     def size(self):
         """Return number of elements of the allowed values.
         """
-        # 2012-08-03 - 2012-08-03
         return numpy.prod(self._shape) \
             if self._shape is not None else None
 
@@ -398,7 +377,6 @@ class gMean(object):
     def ndim(self):
         """Return number of dimensions of the allowed values.
         """
-        # 2012-08-03 - 2012-08-03
         return len(self._shape) \
             if self._shape is not None else None
 
@@ -406,9 +384,6 @@ class gMean(object):
         """Add a value. It can be a scalar or an n-dimensional array, but it
         must be consistent with values that were already added.
         """
-        # 2012-08-03 - 2012-08-03
-        # based on ialg.MeanAlgorithm.add from 2012-02-17
-        # and ialg.MeanAlgorithm.check_added from 2011-11-25
 
         # check if value is zero
         if numpy.any(numpy.array(value) <= 0):
@@ -442,7 +417,6 @@ class gMean(object):
     def mean(self):
         """Calculate the sample geometric mean.
         """
-        # 2012-08-03 - 2013-06-19
         if self._count:
             if self._shape == ():
                 return numpy.exp(self._gamma/self._count).tolist()
@@ -454,7 +428,6 @@ class gMean(object):
     def __call__(self):
         """Alias for the method mean().
         """
-        # 2012-08-03 - 2012-08-03
         return self.mean()
 
     def var(self):
@@ -465,7 +438,6 @@ class gMean(object):
         this, those values are set to zero.  Tests show that even with a
         million samples, the error is still of the order 1e-10.
         """
-        # 2012-08-03 - 2013-06-19
         if self._count:
             if self._shape == ():
                 if self._count > 1:
@@ -494,7 +466,6 @@ class gMean(object):
         """Calculate the sample standard deviation, which is the square root
         of the sample variance.
         """
-        # 2012-08-03 - 2013-06-19
         var = self.var()
         if var is None:
             return None
@@ -506,7 +477,6 @@ class gMean(object):
         According to [Norris1940], the sample standard error is equal to the
         sample standard deviation devided by sqrt(N-1).
         """
-        # 2012-09-06 - 2013-06-19
         var = self.var()
         if var is None or self._count < 1:
             return None
@@ -516,19 +486,16 @@ class gMean(object):
     def sem(self):
         """Alias for "stderr".
         """
-        # 2012-09-06 - 2012-09-06
         return self.stderr()
 
     def mspair(self):
         """Return the pair of mean and standard error (2-tuple).
         """
-        # 2012-08-03 - 2013-06-19
         return self.mean(), self.stderr()
 
     def __repr__(self):
         """Return complete string representation.
         """
-        # 2012-08-03 - 2012-08-03
         args = {}
         if self._shape is not None:
             args['shape'] = self._shape
@@ -550,7 +517,6 @@ class gMean(object):
     def __str__(self):
         """Return short string representation.
         """
-        # 2012-08-03 - 2012-08-03
         return '<%s instance with %i value%s (shape=%s, dtype=%s)>' \
             % (type(self).__name__, self._count, self._plural(self._count),
                 self._shape, self._dtype)  # .__name__
@@ -558,9 +524,9 @@ class gMean(object):
     @staticmethod
     def _plural(number):
         """Returns an empty string is the given number equals 1, otherwise "s".
+
+        copy of cofunc.CoFunc._plural
         """
-        # 2012-08-03 - 2012-08-03
-        # copied from cofunc.CoFunc._plural from 2012-07-11
         return '' if number == 1 else 's'
 
     def ci(self, n=1):
@@ -570,7 +536,6 @@ class gMean(object):
         relative to the mean value. In other words, the CI stretches from
         mean-array1 to mean+array2. The width of the CI is array1+array2.
         """
-        # 2012-10-09 - 2013-06-19
         assert n == 1, 'only n=1 supported right now'
         stderr = self.stderr()
         return stderr, stderr
