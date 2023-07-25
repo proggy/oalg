@@ -3,13 +3,19 @@ oalg
 
 Collection of on-line algorithms.
 
+Most of them are on-line versions of their
+offline counterparts in numpy, but because of their on-line nature, they are
+formulated as classes instead of functions.
+
+For further information about on-line algorithms, please check Wikipedia:
+http://en.wikipedia.org/wiki/On-line_algorithm
 
 
 Copyright notice
 ----------------
 
-Copyright (C) 2013-2014 Daniel Jung.
-Contact: djungbremen@gmail.com
+Copyright (C) 2013-2023 Daniel Jung
+Contact: proggy-contact@mailbox.org
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

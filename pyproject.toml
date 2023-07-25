@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "oalg"
+version = "0.1.1"
+authors = [
+  { name="Daniel Jung", email="proggy-contact@mailbox.org" },
+]
+maintainers = [
+  { name="Daniel Jung", email="proggy-contact@mailbox.org" },
+]
+description = "Collection of on-line algorithms."
+readme = "README.md"
+requires-python = ">=2.5"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Source" = "https://github.com/proggy/oalg"
+"Homepage" = "https://github.com/proggy/oalg"
+"Bug Tracker" = "https://github.com/proggy/oalg/issues"
